@@ -6,7 +6,9 @@ Analyzes public GitHub repositories for bugs and security vulnerabilities using 
 
 ## Live API
 
-**Base URL:** `https://YOUR-PROJECT.vercel.app`
+**Base URL:** https://ai-assessment-pearl.vercel.app
+</br>
+**Health Check:** https://ai-assessment-pearl.vercel.app/api
 
 ### `POST /api/analyze-repo`
 
@@ -55,7 +57,7 @@ Analyzes public GitHub repositories for bugs and security vulnerabilities using 
 2. Go to [vercel.com](https://vercel.com) → **Add New Project**
 3. Import your GitHub repo
 4. Under **Environment Variables**, add:
-   - `GEMINI_API_KEY` → your key from [console.anthropic.com](https://console.anthropic.com)
+   - `GEMINI_API_KEY` → your key from [aistudio.google.com](https://aistudio.google.com/)
    - `GITHUB_TOKEN` → optional, raises rate limits
 5. Click **Deploy** — you get a live `https://` URL instantly
 
@@ -64,7 +66,7 @@ Analyzes public GitHub repositories for bugs and security vulnerabilities using 
 ```bash
 npm i -g vercel
 vercel                        # follow prompts
-vercel env add ANTHROPIC_API_KEY
+vercel env add GEMINI_API_KEY
 vercel env add GITHUB_TOKEN   # optional
 vercel --prod
 ```
