@@ -1,1 +1,15 @@
-{"version":2}
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/analyze-repo.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/analyze-repo",
+      "dest": "api/analyze-repo.js"
+    }
+  ]
+}
