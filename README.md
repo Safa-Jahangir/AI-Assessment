@@ -7,6 +7,7 @@ Analyzes public GitHub repositories for bugs and security vulnerabilities using 
 ## Live API
 
 **Base URL:** https://ai-assessment-pearl.vercel.app
+</br>
 **Health Check:** https://ai-assessment-pearl.vercel.app/api
 
 ### `POST /api/analyze-repo`
@@ -65,7 +66,7 @@ Analyzes public GitHub repositories for bugs and security vulnerabilities using 
 ```bash
 npm i -g vercel
 vercel                        # follow prompts
-vercel env add ANTHROPIC_API_KEY
+vercel env add GEMINI_API_KEY
 vercel env add GITHUB_TOKEN   # optional
 vercel --prod
 ```
