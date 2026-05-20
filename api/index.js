@@ -1,7 +1,0 @@
-﻿module.exports = (req, res) => {
-  res.json({
-    service: "GitHub Repository Analyzer",
-    status: "running",
-    endpoint: "POST /api/analyze-repo"
-  });
-};
