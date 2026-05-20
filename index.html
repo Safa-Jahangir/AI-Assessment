@@ -1,9 +1,50 @@
 <!DOCTYPE html>
-<html>
-<head><title>GitHub Analyzer API</title></head>
-<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-    <h1>🚀 GitHub Repository Analyzer API</h1>
-    <p>The service is <strong>Live and Online</strong>.</p>
-    <p>Check the <a href="/api">Health Status</a> or view the <a href="https://github.com/Safa-Jahangir/AI-Assessment">Documentation</a>.</p>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Analyzer | API Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: radial-gradient(circle at top left, #1a1a2e, #16213e); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen text-slate-200 flex items-center justify-center p-6">
+    <div class="glass max-w-2xl w-full rounded-3xl p-8 md:p-12 shadow-2xl">
+        <header class="text-center mb-10">
+            <div class="inline-block p-3 rounded-2xl bg-blue-500/20 mb-4">
+                <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-300">
+                GitHub Repository Analyzer
+            </h1>
+            <p class="mt-3 text-slate-400 font-medium tracking-wide uppercase text-sm">Deployment Status: <span class="text-emerald-400">● Online</span></p>
+        </header>
+
+        <section class="space-y-6">
+            <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
+                <h2 class="text-lg font-semibold mb-2">Service Endpoint</h2>
+                <code class="block bg-black/40 p-3 rounded-lg text-blue-300 break-all">POST /api/analyze-repo</code>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-5 rounded-2xl bg-white/5 border border-white/10">
+                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">Engine</p>
+                    <p class="text-slate-200">Gemini 1.5 Pro</p>
+                </div>
+                <div class="p-5 rounded-2xl bg-white/5 border border-white/10">
+                    <p class="text-xs text-slate-500 uppercase font-bold mb-1">Platform</p>
+                    <p class="text-slate-200">Vercel Serverless</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="mt-12 pt-8 border-t border-white/5 text-center">
+            <a href="https://github.com/Safa-Jahangir/AI-Assessment" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 transition-all font-semibold text-white shadow-lg shadow-indigo-500/20">
+                View Documentation on GitHub
+            </a>
+        </footer>
+    </div>
 </body>
 </html>
