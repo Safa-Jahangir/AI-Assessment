@@ -1,80 +1,93 @@
-// ── Vercel Handler ────────────────────────────────────────────────────────────
+const axios = require("axios");
 
-module.exports = async function handler(req, res) {
-  // Helper to send JSON responses reliably
-  const sendJSON = (statusCode, data) => {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    return res.end(JSON.stringify(data));
-  };
+// -- HELPER FUNCTIONS --
+function parseGitHubUrl(url) {
+  try {
+    const cleaned = url.replace(/\.git$/, "").split("/tree/")[0];
+    const { pathname } = new URL(cleaned);
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length < 2) throw new Error("Invalid format");
+    return { owner: parts[0], repo: parts[1] };
+  } catch (e) {
+    throw new Error(`Invalid GitHub URL: ${url}`);
+  }
+}
 
-  // Handle preflight
+async function analyzeWithGemini(code, filePath, repoName) {
+  const prompt = `Analyze this code from ${repoName} (${filePath}) for bugs and security issues. 
+  Respond ONLY with a JSON object: {"vulnerabilities_found": [], "suggestions": ""}.
+  Code: ${code.slice(0, 10000)}`;
+
+  const response = await axios.post(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    { contents: [{ parts: [{ text: prompt }] }] }
+  );
+
+  const raw = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+  const cleaned = raw.replace(/```json|```/g, "").trim();
+  return JSON.parse(cleaned);
+}
+
+// -- MAIN HANDLER --
+module.exports = async (req, res) => {
+  // Set CORS headers manually for maximum compatibility
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   if (req.method === "OPTIONS") {
     res.statusCode = 200;
     return res.end();
   }
 
-  // Only accept POST
   if (req.method !== "POST") {
-    return sendJSON(405, { status: "error", message: "Method not allowed. Use POST." });
-  }
-
-  const { repo_url } = req.body || {};
-
-  if (!repo_url || typeof repo_url !== "string") {
-    return sendJSON(400, {
-      status: "error",
-      message: 'Missing or invalid "repo_url" in request body.',
-    });
+    res.statusCode = 405;
+    return res.end(JSON.stringify({ error: "Use POST" }));
   }
 
   try {
-    // 1. Parse URL → owner + repo
+    const { repo_url } = req.body || {};
+    if (!repo_url) {
+      res.statusCode = 400;
+      return res.end(JSON.stringify({ error: "repo_url is required" }));
+    }
+
     const { owner, repo } = parseGitHubUrl(repo_url);
-    console.log(`[analyze] ${owner}/${repo}`);
+    
+    // Fetch basic repo info to get default branch
+    const repoInfo = await axios.get(`https://api.github.com/repos/${owner}/${repo}`);
+    const branch = repoInfo.data.default_branch || "main";
 
-    // 2. Get default branch
-    const branch = await getDefaultBranch(owner, repo);
+    // Fetch the file tree to find a source file
+    const treeInfo = await axios.get(`https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`);
+    const primaryFile = treeInfo.data.tree.find(f => f.path.endsWith('.js') || f.path.endsWith('.py') || f.path.endsWith('.ts'))?.path;
 
-    // 3. Walk full file tree
-    const allFiles = await getFileTree(owner, repo, branch);
+    if (!primaryFile) {
+      res.statusCode = 404;
+      return res.end(JSON.stringify({ error: "No source files found" }));
+    }
 
-    // 4. Pick best source file
-    const primaryFile = pickPrimaryFile(allFiles);
-    console.log(`[analyze] primary file: ${primaryFile}`);
+    // Get the raw code
+    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${primaryFile}`;
+    const codeRes = await axios.get(rawUrl);
+    
+    // Analyze
+    const analysis = await analyzeWithGemini(codeRes.data, primaryFile, repo);
 
-    // 5. Fetch raw content
-    const code = await fetchFileContent(owner, repo, primaryFile, branch);
-
-    // 6. Analyze with Gemini
-    const analysis = await analyzeWithGemini(code, primaryFile, repo);
-
-    // 7. Return structured response
-    return sendJSON(200, {
+    res.statusCode = 200;
+    return res.end(JSON.stringify({
       status: "success",
       repo_name: repo,
-      file_analyzed: primaryFile,
-      vulnerabilities_found: analysis.vulnerabilities_found ?? [],
-      suggestions: analysis.suggestions ?? "",
-    });
+      analysis: analysis
+    }));
 
   } catch (err) {
-    console.error("[analyze] error:", err.message);
-
-    if (err.message?.includes("404"))
-      return sendJSON(404, { status: "error", message: "Repository not found or is private." });
-    if (err.message?.includes("Invalid GitHub URL"))
-      return sendJSON(400, { status: "error", message: err.message });
-    if (err.message?.includes("No source files"))
-      return sendJSON(422, { status: "error", message: err.message });
-
-    return sendJSON(500, { 
+    console.error(err);
+    res.statusCode = 500;
+    return res.end(JSON.stringify({ 
       status: "error", 
-      message: "Internal server error.", 
-      details: err.message // This helps you see the actual error in ReqBin
-    });
+      message: err.message,
+      note: "Check if GEMINI_API_KEY is set in Vercel settings" 
+    }));
   }
 };
