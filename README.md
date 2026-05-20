@@ -1,6 +1,6 @@
 # GitHub Repository Analyzer API
 
-Analyzes public GitHub repositories for **bugs and security vulnerabilities** using Claude AI. Built as a Vercel serverless deployment.
+Analyzes public GitHub repositories for bugs and security vulnerabilities using Gemini 1.5 Pro. Built as a Vercel serverless deployment.
 
 ---
 
@@ -55,7 +55,7 @@ Analyzes public GitHub repositories for **bugs and security vulnerabilities** us
 2. Go to [vercel.com](https://vercel.com) → **Add New Project**
 3. Import your GitHub repo
 4. Under **Environment Variables**, add:
-   - `ANTHROPIC_API_KEY` → your key from [console.anthropic.com](https://console.anthropic.com)
+   - `GEMINI_API_KEY` → your key from [console.anthropic.com](https://console.anthropic.com)
    - `GITHUB_TOKEN` → optional, raises rate limits
 5. Click **Deploy** — you get a live `https://` URL instantly
 
