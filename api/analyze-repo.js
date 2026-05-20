@@ -18,9 +18,17 @@ async function analyzeWithGemini(code, filePath, repoName) {
   Respond ONLY with a JSON object: {"vulnerabilities_found": [], "suggestions": ""}.
   Code: ${code.slice(0, 10000)}`;
 
+  // Using the more stable v1 endpoint instead of v1beta
   const response = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-    { contents: [{ parts: [{ text: prompt }] }] }
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    { 
+      contents: [{ parts: [{ text: prompt }] }] 
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
   );
 
   const raw = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
