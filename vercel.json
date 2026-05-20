@@ -4,12 +4,20 @@
     {
       "src": "api/analyze-repo.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/analyze-repo",
       "dest": "api/analyze-repo.js"
+    },
+    {
+      "src": "/api",
+      "dest": "api/index.js"
     }
   ]
 }
