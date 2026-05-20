@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "github-repo-analyzer",
   "version": "1.0.0",
   "main": "api/analyze-repo.js",
